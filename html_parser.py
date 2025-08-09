@@ -7,7 +7,7 @@ def parse_html(html_path, parsed_report_path):
     print(f'Processing {html_path}')
     html_p = html_path
     header, report_data = "", ""
-    issue_types = {"Ammounts": [], "Error": [], "Warning": [], "Notice": []}
+    issue_types = {"Ammounts": {"Errors": 0, "Warnings": 0, "Notices": 0}, "Error": [], "Warning": [], "Notice": []}
     stats1 = dict()
     issues = []
 
@@ -19,10 +19,10 @@ def parse_html(html_path, parsed_report_path):
         # Gathering issues count from the report's header
         header = header.replace('<tr><th id="col_info">', '').replace('</td></tr>', '').replace('</th><td>', '').replace('</tbody>', '')
 
-        stats1["Errors"] = int(header[13:header.index("Total Warnings:")])
-        stats1["Warnings"] = int(header[header.index("Total Warnings:") + 15:header.index("Total Notices:")])
-        stats1["Notices"] = int(header[header.index("Total Notices:") + 14:])
-        issue_types["Ammounts"].append(stats1)
+        issue_types["Ammounts"]["Errors"] = int(header[13:header.index("Total Warnings:")])
+        issue_types["Ammounts"]["Warnings"] = int(header[header.index("Total Warnings:") + 15:header.index("Total Notices:")])
+        issue_types["Ammounts"]["Notices"] = int(header[header.index("Total Notices:") + 14:])
+        # issue_types["Ammounts"].append(stats1)
         
         # Gathering all found issues for further processing
         results_start = raw_html.index("<tr>", raw_html.index("Description"))
@@ -31,10 +31,10 @@ def parse_html(html_path, parsed_report_path):
 
         # Separating issues and adding them into issues list
         pointer_start, pointer_end = report_data.index("<tr>") + len("<tr>"), report_data.index("</tr>")
-        for i in range(sum(stats1.values())):
+        for i in range(sum(issue_types["Ammounts"].values())):
             tmp = report_data[pointer_start:pointer_end]
             issues.append(tmp)
-            if i != (sum(stats1.values()) - 1):
+            if i != (sum(issue_types["Ammounts"].values()) - 1):
                 pointer_start = report_data.index("<tr>", pointer_end) + len("<tr>")              
                 pointer_end = report_data.index('</tr>', pointer_start)
                 
@@ -69,10 +69,14 @@ def parse_html(html_path, parsed_report_path):
     print(f'Report {html_p} has been processed. Results in {parsed_report_path}. Report folder: {os.getcwd()}')
     return parsed_report_path
 
-d1, d2 = argv[1].replace("\\", "/"), argv[2].replace("\\", "/")
+# if len(argv) > 1:
+#     d1, d2 = argv[1].replace("\\", "/"), argv[2].replace("\\", "/")
+
+if len(argv) > 1:
+    d1 = argv[1].replace("\\", "/")
 
 doc1 = parse_html(d1, "report_left.json")
-doc2 = parse_html(d2, "report_right.json")
+# doc2 = parse_html(d2, "report_right.json")
 
-report_diff(doc1, doc2)
+# report_diff(doc1, doc2)
 
