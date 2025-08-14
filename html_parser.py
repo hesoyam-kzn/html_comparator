@@ -48,22 +48,25 @@ def parse_html(html_path, parsed_report_path):
             if "Error" in issue:
                 issue_types["Error"].append({"Scenario": issue[issue.index(sc_reg) + 15:issue.index('</td>')],
                                             "Source": issue[issue.index(src_reg) + 13:issue.index('</td>', issue.index(src_reg))],
-                                            "Description": issue[issue.index(dsc_reg) + 18:issue.index('</td>', issue.index(dsc_reg))]})
+                                            "Description": issue[issue.index(dsc_reg) + 18:issue.index('</td>', issue.index(dsc_reg))].rstrip(),
+                                            "Bug": None})
             elif "Warning" in issue:
                 issue_types["Warning"].append({"Scenario": issue[issue.index(sc_reg) + 15:issue.index('</td>')],
                                             "Source": issue[issue.index(src_reg) + 13:issue.index('</td>', issue.index(src_reg))],
-                                            "Description": issue[issue.index(dsc_reg) + 18:issue.index('</td>', issue.index(dsc_reg))]})
+                                            "Description": issue[issue.index(dsc_reg) + 18:issue.index('</td>', issue.index(dsc_reg))].rstrip(),
+                                            "Bug": None})
             elif "Notice" in issue:
                 issue_types["Notice"].append({"Scenario": issue[issue.index(sc_reg) + 15:issue.index('</td>')],
                                             "Source": issue[issue.index(src_reg) + 13:issue.index('</td>', issue.index(src_reg))],
-                                            "Description": issue[issue.index(dsc_reg) + 18:issue.index('</td>', issue.index(dsc_reg))]})
+                                            "Description": issue[issue.index(dsc_reg) + 18:issue.index('</td>', issue.index(dsc_reg))].rstrip(),
+                                            "Bug": None})
             else:
                 print(f"Couldn't distribute {issue} to any of available groups")
 
         # Sorting issues for smooth comparison (first sort by scenario name, second by issue description)
-        issue_types["Error"] = sorted(issue_types["Error"], key=lambda x: (x["Scenario"], x["Description"]))
-        issue_types["Warning"] = sorted(issue_types["Warning"], key=lambda x: (x["Scenario"], x["Description"]))
-        issue_types["Notice"] = sorted(issue_types["Notice"], key=lambda x: (x["Scenario"], x["Description"]))
+        issue_types["Error"] = sorted(issue_types["Error"], key=lambda x: (x["Scenario"], x["Description"], x["Source"]))
+        issue_types["Warning"] = sorted(issue_types["Warning"], key=lambda x: (x["Scenario"], x["Description"], x["Source"]))
+        issue_types["Notice"] = sorted(issue_types["Notice"], key=lambda x: (x["Scenario"], x["Description"], x["Source"]))
         print(f'Errors - {len(issue_types["Error"])}, Warnings - {len(issue_types["Warning"])}, Notices - {len(issue_types["Notice"])}')
         # print(issue_types)
         
